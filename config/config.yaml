@@ -1,0 +1,7 @@
+head:
+  position:
+    pan: 90
+    tilt: 45
+  step:
+    pan: 10
+    tilt: 10
