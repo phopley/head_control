@@ -16,6 +16,12 @@
 
 typedef actionlib::SimpleActionServer<face_recognition_msgs::scan_for_facesAction> Server; 
 
+struct FaceSeen
+{
+    unsigned int id;
+    std::string name;
+};
+
 class HeadControlNode
 {
 protected:
@@ -35,6 +41,8 @@ private:
     ros::Subscriber individual_scan_finished_sub_;
     ros::Publisher start_individual_scan_pub_;
     ros::Publisher move_head_pub_;
+    
+    std::list<FaceSeen> seen_list_; // List of faces seen recently
 	    	   	
     int pan_min_;               // Smallest servo angle for pan
     int pan_max_;               // Maximum servo angle for pan
@@ -56,6 +64,9 @@ private:
 
     // This callback is used when the face recognition node sends the result back for an individual scan		
     void individualScanFinishedCallback(const face_recognition_msgs::face_recognition& msg);
+    
+    // Function used to keep track of who has been seen
+    bool haveWeSeenThisPerson(FaceSeen face_detected);
 };
 
 #endif // HEAD_CONTROL_NODE_H_

@@ -16,6 +16,9 @@ void HeadControlNode::scanForFacesCallback()
     goal = as_.acceptNewGoal();
     ROS_DEBUG("HeadControlNode: Got action goal");
 
+    // Clear the list of those seen
+    seen_list_.clear();
+    
     scans_complete_ = 0;
 
     // Here we send a message to move the head and then to grab a frame
@@ -108,15 +111,39 @@ void HeadControlNode::individualScanFinishedCallback(const face_recognition_msgs
 	            }
 	        }
         }
-	
+		   
+	    // Add any faces seen to the stored list
+	    if(msg.ids_detected.size() > 0)
+        {  
+            for(unsigned long x = 0; x < msg.ids_detected.size(); x++)
+            {
+                FaceSeen face_detected;
+                face_detected.id = msg.ids_detected[x];
+                face_detected.name = msg.names_detected[x];             
+
+                if(haveWeSeenThisPerson(face_detected) == false)
+                {                                    
+                    ROS_DEBUG("HeadControlNode: I have seen %s", msg.names_detected[x].c_str());
+                }
+            }          
+        }
+	    
         if(all_areas_scanned == true)
         {
 	        // set position to default position
 	        current_pan_tilt_ = default_position_;	               
-		
-	        // Send action result based on msg
-	        face_recognition_msgs::scan_for_facesResult result;
-	        result.detected = msg;	        
+		    
+		    // Note here in the result we send a list of all those people seen
+		    
+	        // Send action result, the seen list
+	        face_recognition_msgs::scan_for_facesResult result;	        
+	          	        
+	        // Iterate through the faces seen adding the the result
+	        for (std::list<FaceSeen>::const_iterator iterator = seen_list_.begin(), end = seen_list_.end(); iterator != end; ++iterator)
+	        {	            	           	            
+	            result.detected.ids_detected.push_back(iterator->id);
+	            result.detected.names_detected.push_back(iterator->name);	            	       
+	        }
 		
             as_.setSucceeded(result);
             
@@ -127,7 +154,9 @@ void HeadControlNode::individualScanFinishedCallback(const face_recognition_msgs
         {        
 	        // Calculate percentage complete
         	percentage_complete = ((float)scans_complete_ / (float)total_indv_scans_) * 100.0;
-		
+				    
+		    // Note that here in the feedback we only send those just seen, even if seen before
+		        
         	// Send feedback which includes the result of the last individual scan
 	        publishFeedback(percentage_complete, msg); 	        
 		
@@ -138,6 +167,27 @@ void HeadControlNode::individualScanFinishedCallback(const face_recognition_msgs
             move_head_pub_.publish(current_pan_tilt_);
         }	
     }
+}
+//---------------------------------------------------------------------------
+
+// Function used to keep track of who has been seen
+bool HeadControlNode::haveWeSeenThisPerson(FaceSeen face_detected)
+{
+    bool ret_val = true;
+
+    // Is this person already in our list of people seen
+    std::list<FaceSeen>::iterator it = std::find_if(seen_list_.begin(), seen_list_.end(),
+    boost::bind(&FaceSeen::id, _1) == face_detected.id);
+
+    if(it == seen_list_.end())
+    {
+        // Not seen before, add to seen list
+        seen_list_.insert(it, face_detected);
+
+        ret_val = false;
+    }
+
+    return ret_val;
 }
 //---------------------------------------------------------------------------
 
