@@ -31,11 +31,14 @@ protected:
 public:
     HeadControlNode(ros::NodeHandle n, std::string name);
 	~HeadControlNode();
+	// Function to move the servos
+    void moveServo();
 
 private:
     ros::NodeHandle nh_;
 		
-    servo_msgs::pan_tilt current_pan_tilt_;
+    servo_msgs::pan_tilt current_pan_tilt_; // The current pan/tilt position
+    servo_msgs::pan_tilt target_pan_tilt_;  // The position we want the pan/tilt to move to
     servo_msgs::pan_tilt default_position_; // Neutral position for pan and tilt
 		
     ros::Subscriber individual_scan_finished_sub_;
@@ -50,11 +53,21 @@ private:
     int tilt_max_;              // Maximum servo angle for tilt	
 		
     bool increase_pan_;         // When true and scanning pan angle will increase, otherwise decrease 
-    int pan_step_;              // Angle to increase/decrease pan position by when scanning 
-    int tilt_step_;             // Angle to increase/decrease tilt position by when scanning
+    int pan_step_;              // Maximum angle we can move the pan servo in one go 
+    int tilt_step_;             // Maximum angle we can move the tilt servo in one go
+    int pan_view_step_;         // Angle to increase/decrease pan position between scans
+    int tilt_view_step_;        // Angle to increase/decrease tilt position between scans
 		
-    int total_indv_scans_;     // The total number of individual scans that make up a complete scan
-    int scans_complete_;       // Number of scans conducted in this pass
+    int total_indv_scans_;      // The total number of individual scans that make up a complete scan
+    int scans_complete_;        // Number of scans conducted in this pass
+    
+    int loop_count_down_;       // Used to give time for head to settle before grabing image from camera
+    
+    bool move_head_;            // Set to true when servos should move to target position
+    bool movement_complete_;    // Set to true when servo movement complete and next process requested
+    
+    enum MovementComplete {requestScan, nothing};
+    MovementComplete process_when_moved_;    // Process to do when servo reaches target position
 
     // This callback is used to kick off the action
     void scanForFacesCallback();
@@ -66,7 +79,7 @@ private:
     void individualScanFinishedCallback(const face_recognition_msgs::face_recognition& msg);
     
     // Function used to keep track of who has been seen
-    bool haveWeSeenThisPerson(FaceSeen face_detected);
+    bool haveWeSeenThisPerson(FaceSeen face_detected);   
 };
 
 #endif // HEAD_CONTROL_NODE_H_
