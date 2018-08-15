@@ -1,23 +1,37 @@
 # head_control
-ROS package for the head control node.
-## Description
-The node controls the movement of the robot head and synchronised the request for face recognition with the movements.
-## Executable
-head_control_node
-## Subscribed topics
-- /face_recognition_node/result of type face_recognition_msgs.face_recognition
-## Published topics 
-- face_recognition_node/start of type std_msgs::Empty
-- pan_tilt_node/head_position of type servo_msgs::pan_tilt
-## Action server
-- face_recognition_msgs::scan_for_faces
-## Fixed server parameters
-- /servo/index0/pan_min, default = 0, minimum range for the pan servo
-- /servo/index0/pan_max, default = 180, maximum range for the pan servo
-- /servo/index0/tilt_min, default = 0, minimum range for the tilt servo
-- /servo/index0/tilt_max, default = 180, maximum range for the tilt servo
-- /head/step/pan, default = 10, the increment that the pan will move for each scan
-- /head/step/tilt, default = 10, the increment that the tilt will move for each scan
-- /head/position/pan, default = 90, the pan position that the head will move to when a task is complete
-- /head/position/tilt, default = 45, the tilt position that the head will move to when a task is complete
 
+ROS node to control the head and synchronise a face recognition scan.
+
+## Running the Node
+
+Once you have the node built you can test it by launching the test.launch file.
+
+## Node Information
+Topics:
+
+* `face_recognition_node/result`:  
+  Subscribes `facerecognition_msgs/face_recognition` the result of the last image scan
+  
+* `face_recognition_node/start`:  
+  Publishes `std_msgs/Empty` requests a face recognition scan of the next image
+  
+* `pan_tilt_node/head_position`:  
+  Publishes `servo_msgs/pan_tilt` sets the servo position for the pan and tilt servo
+
+Actions:
+
+* `face_recognition_msgs/scan_for_faces`:  
+  Server used to controls the moving of the head/camera and scanning for a recognised face at each set position.  
+  
+Parameters:
+
+* `/servo/index0/pan_min`: minimum range for the pan servo. Default value = 0. 
+* `/servo/index0/pan_max`: Maximum range for the pan servo. Default value = 180.
+* `/servo/index0/tilt_min`: Minimum range for the tilt servo. Default value = 0.
+* `/servo/index0/tilt_max`: Maximum range for the tilt servo. Default value = 180.
+* `/head/view_step/pan`: The increment that the pan servo will move for each scan. Default value = 10.
+* `/head/view_step/tilt`: The increment that the tile servo will move for each scan. Default value = 10.
+* `/head/max_step/pan`: The maximum angle the pan servo will move in one go. Deafult value = 10.
+* `/head/max_step/tilt`: The maximum angle the tilt servo will move in one go. Deafult value = 10.
+* `/head/position/pan`: The pan position that the head will move to when a task is complete. Default value = 90.
+* `/head/position/tilt`: The tilt position that the head will move to when a task is complete. Default value = 45.

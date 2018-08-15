@@ -2,6 +2,9 @@ head:
   position:
     pan: 90
     tilt: 45
-  step:
-    pan: 10
-    tilt: 10
+  view_step:
+    pan: 50
+    tilt: 25
+  max_step:
+    pan: 5
+    tilt: 5
