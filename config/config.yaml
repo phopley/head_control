@@ -4,7 +4,7 @@ head:
     tilt: 45
   view_step:
     pan: 50
-    tilt: 50
+    tilt: 25
   max_step:
     pan: 5
     tilt: 5
