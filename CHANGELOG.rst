@@ -2,7 +2,7 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Unreleased
+0.1.1 (2018-08-16)
 ------------------
 * Update email address in package.xml file
 * Moved list of seen people to this node
