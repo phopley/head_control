@@ -11,6 +11,7 @@
 #include <face_recognition_msgs/scan_for_facesAction.h>
 #include <face_recognition_msgs/scan_for_facesActionFeedback.h>
 #include <face_recognition_msgs/scan_for_facesActionResult.h>
+#include <std_msgs/String.h>
 
 #include <actionlib/server/simple_action_server.h>
 
@@ -42,6 +43,7 @@ private:
     servo_msgs::pan_tilt default_position_; // Neutral position for pan and tilt
 		
     ros::Subscriber individual_scan_finished_sub_;
+    ros::Subscriber manual_sub_;
     ros::Publisher start_individual_scan_pub_;
     ros::Publisher move_head_pub_;
     
@@ -77,6 +79,9 @@ private:
 
     // This callback is used when the face recognition node sends the result back for an individual scan		
     void individualScanFinishedCallback(const face_recognition_msgs::face_recognition& msg);
+    
+    // This calback is used when a command to manually move the head/camera is received
+    void manualMovementCallback(const std_msgs::String& msg);
     
     // Function used to keep track of who has been seen
     bool haveWeSeenThisPerson(FaceSeen face_detected);   

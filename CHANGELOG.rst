@@ -2,6 +2,10 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.1.2 (2018-09-26)
+------------------
+* Manual Camera movements
+
 0.1.1 (2018-08-16)
 ------------------
 * Update email address in package.xml file

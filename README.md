@@ -12,6 +12,9 @@ Topics:
 * `face_recognition_node/result`:  
   Subscribes `facerecognition_msgs/face_recognition` the result of the last image scan
   
+* `head_control_node/manual`:  
+  Subscribes `std_msgs/String` request the movement of the camera/head
+  
 * `face_recognition_node/start`:  
   Publishes `std_msgs/Empty` requests a face recognition scan of the next image
   

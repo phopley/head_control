@@ -49,6 +49,65 @@ void HeadControlNode::publishFeedback(float progress, face_recognition_msgs::fac
 }
 //---------------------------------------------------------------------------
 
+// This callback is used to process a command to manually move the head/camera
+void HeadControlNode::manualMovementCallback(const std_msgs::String& msg)
+{   
+    if(msg.data.find('u') != std::string::npos)
+    {
+        target_pan_tilt_.tilt = current_pan_tilt_.tilt + tilt_view_step_;        
+		
+	    if(target_pan_tilt_.tilt > tilt_max_)
+	    {          
+	        // Moved out of range, put back on max                   
+	        target_pan_tilt_.tilt = tilt_max_;
+        }
+    }
+    
+    if(msg.data.find('d') != std::string::npos)
+    {
+        target_pan_tilt_.tilt = current_pan_tilt_.tilt - tilt_view_step_;
+        
+        if(target_pan_tilt_.tilt < tilt_min_)
+	    {          
+	        // Moved out of range, put back on min                   
+	        target_pan_tilt_.tilt = tilt_min_;
+        }
+    }
+    
+    if(msg.data.find('l') != std::string::npos)
+    {
+        target_pan_tilt_.pan = current_pan_tilt_.pan + pan_view_step_;
+        
+        if(target_pan_tilt_.pan > pan_max_)
+	    {          
+	        // Moved out of range, put back on max                   
+	        target_pan_tilt_.pan = pan_max_;
+        }
+    }
+    
+    if(msg.data.find('r') != std::string::npos)
+    {
+        target_pan_tilt_.pan = current_pan_tilt_.pan - pan_view_step_;
+
+        if(target_pan_tilt_.pan < pan_min_)
+	    {          
+	        // Moved out of range, put back on min                   
+	        target_pan_tilt_.pan = pan_min_;
+        }
+    }
+    
+    if(msg.data.find('c') != std::string::npos)
+    {
+        // Move to default central position
+        target_pan_tilt_ = default_position_;
+    }
+    
+    // Assume if message received we will be moving the head/camera
+    move_head_ = true;
+    process_when_moved_ = nothing;        
+}
+//---------------------------------------------------------------------------
+
 // This callback is used when the face recognition node sends the result back for an individual scan		
 void HeadControlNode::individualScanFinishedCallback(const face_recognition_msgs::face_recognition& msg)
 {
@@ -317,11 +376,14 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
     as_.start();
   
     individual_scan_finished_sub_ =
-        nh_.subscribe("/face_recognition_node/result", 1, &HeadControlNode::individualScanFinishedCallback, this);          
+        nh_.subscribe("/face_recognition_node/result", 1, &HeadControlNode::individualScanFinishedCallback, this);
+        
+    // Subscribe to topic for manual head movement command
+    manual_sub_ = nh_.subscribe("/head_control_node/manual", 5, &HeadControlNode::manualMovementCallback, this);           
 		
     // Topic to instruct the scan of the current image
     start_individual_scan_pub_ = nh_.advertise<std_msgs::Empty>("face_recognition_node/start", 1);
-	
+    	
     // Topic to move head
     move_head_pub_ = nh_.advertise<servo_msgs::pan_tilt>("pan_tilt_node/head_position", 10);	
 	
@@ -363,6 +425,7 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
     
     move_head_ = false;
     movement_complete_ = false;
+    target_pan_tilt_ = current_pan_tilt_;
 }
 //---------------------------------------------------------------------------
 
