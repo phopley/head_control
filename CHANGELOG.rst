@@ -2,6 +2,10 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.0.0 (2018-12-05)
+------------------
+* Removed action to scan for faces. Node now only controls servo speeds
+
 0.1.2 (2018-09-26)
 ------------------
 * Manual Camera movements

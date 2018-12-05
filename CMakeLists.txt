@@ -8,8 +8,6 @@ project(head_control)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS  
-  actionlib
-  face_recognition_msgs
   servo_msgs
   roscpp
   std_msgs
@@ -107,7 +105,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES headcontrol_node
- CATKIN_DEPENDS actionlib face_recognition_msgs servo_msgs roscpp std_msgs
+ CATKIN_DEPENDS servo_msgs roscpp std_msgs
 #  DEPENDS system_lib
 )
 
