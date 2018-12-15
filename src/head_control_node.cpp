@@ -1,21 +1,6 @@
 #include <ros/ros.h>
 #include <head_control/head_control_node.h>
-#include <std_msgs/Empty.h>
 
-
-// This callback is used to process a request to move the head
-void HeadControlNode::requestedMovementCallback(const servo_msgs::pan_tilt& msg)
-{
-    // Set the target position to the request position 
-    target_pan_tilt_ = msg;
-
-    // Indicate that the servos should be moved
-    move_head_ = true;
-    
-    // If we just reach the position and a new message arrives we need to have movement complete false
-    movement_complete_ = false;
-}
-//---------------------------------------------------------------------------
 
 // Function to move the servos if required by a step amount. This is to stop the head shuddering if the servo
 // is moved to the target position in one movement.
@@ -23,8 +8,14 @@ void HeadControlNode::moveServo()
 {
     if(move_head_ == true)
     {
-        // Still processing servo movement
-        if(movement_complete_ == true)
+		if(as_.isPreemptRequested() || !ros::ok())
+		{
+			as_.setPreempted();
+
+			movement_complete_ = false;
+            move_head_ = false;
+        }
+        else if(movement_complete_ == true)
         {
             // We have reached the target but give time to settle
             loop_count_down_--;
@@ -32,11 +23,10 @@ void HeadControlNode::moveServo()
             if(loop_count_down_ <= 0)
             {
                 movement_complete_ = false;
-                move_head_ = false;                
-                
-                // Send movement complete message
-                std_msgs::Empty mt;
-                move_complete_pub_.publish(mt);                
+                move_head_ = false;                                
+
+				head_control::point_headResult result;
+				as_.setSucceeded(result);
             }
         }
         else
@@ -89,30 +79,56 @@ void HeadControlNode::moveServo()
                 {
                     // Can move to the target position in one go (or tilt is in fact already there but pan is not)
                     current_pan_tilt_.tilt = target_pan_tilt_.tilt;                                                            
-                }
-                
+                }                
                 
                 // Publish the movement
                 move_head_pub_.publish(current_pan_tilt_);
+
+				// Publish feedback
+				head_control::point_headFeedback feedback;
+				as_.publishFeedback(feedback);
             }
         }
     }
 }
+//---------------------------------------------------------------------------
+
+// This callback is for the point head action
+void HeadControlNode::pointHeadCallback()
+{
+	head_control::point_headGoal::ConstPtr goal;
+
+	goal = as_.acceptNewGoal();
+
+    // Set the target position to the request position
+    if (goal->absolute == true)
+    {
+        target_pan_tilt_.pan = goal->pan;
+	    target_pan_tilt_.tilt = goal->tilt;
+    }
+    else
+    {
+        target_pan_tilt_.pan += goal->pan;
+	    target_pan_tilt_.tilt += goal->tilt;
+    }
+
+    // Indicate that the servos should be moved
+    move_head_ = true;
+    
+    movement_complete_ = false;
+}
+//---------------------------------------------------------------------------
 
 // Constructor 
-HeadControlNode::HeadControlNode(ros::NodeHandle n)
+HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, name, false), action_name_(name)
 {	
     nh_ = n;
-	
-    // Subscribe to topic for head movement request
-    movement_req_sub_ = 
-        nh_.subscribe("/head_control_node/head_position_request", 5, &HeadControlNode::requestedMovementCallback, this);          
+
+	as_.registerGoalCallback(boost::bind(&HeadControlNode::pointHeadCallback, this));
+	as_.start();         
 		    	
     // Topic to move head
     move_head_pub_ = nh_.advertise<servo_msgs::pan_tilt>("pan_tilt_node/head_position", 10);
-    
-    // Topic to indicate movement complete
-    move_complete_pub_ = nh_.advertise<std_msgs::Empty>("/head_control_node/head_move_complete", 5);
 	
     pan_step_ = 10;     // Maximum step movment for pan servo 
     tilt_step_ = 10;    // Maximum step movment for tilt servo 
@@ -152,7 +168,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "head_control_node");
     ros::NodeHandle n;
     std::string node_name = ros::this_node::getName();
-    HeadControlNode head_control(n);	
+    HeadControlNode head_control(n, node_name);	
     ROS_INFO("%s started", node_name.c_str());
     
     // We need control of the node so that we can step the servos to the target 
