@@ -2,6 +2,10 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Unreleased
+------------------
+* Head movement now controlled by an action server
+
 1.0.0 (2018-12-05)
 ------------------
 * Removed action to scan for faces. Node now only controls servo speeds
