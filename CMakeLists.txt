@@ -8,9 +8,11 @@ project(head_control)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS  
+  actionlib
   servo_msgs
   roscpp
   std_msgs
+  actionlib_msgs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -60,18 +62,21 @@ find_package(catkin REQUIRED COMPONENTS
 #   Service2.srv
 # )
 
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
+# Generate actions in the 'action' folder
+add_action_files(
+  DIRECTORY action
+  FILES
+  point_head.action
 #   Action1.action
 #   Action2.action
-# )
+)
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
+# Generate added messages and services with any dependencies listed here
+generate_messages(
+  DEPENDENCIES
+  actionlib_msgs std_msgs
 #   rodney_msgs#   std_msgs
-# )
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -105,7 +110,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
   INCLUDE_DIRS include
 #  LIBRARIES headcontrol_node
- CATKIN_DEPENDS servo_msgs roscpp std_msgs
+ CATKIN_DEPENDS actionlib servo_msgs roscpp std_msgs actionlib_msgs
 #  DEPENDS system_lib
 )
 

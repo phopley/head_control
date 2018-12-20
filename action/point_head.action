@@ -1,0 +1,12 @@
+# This action moves the head to a given position
+# The goal definition is the position to move the head to if absolute it true,
+# otherwise the pan/tilt values are how much relative to move the head.
+# In future development we will use a vector to point to and from that that
+# actual pan/tilt values will be calculated.
+bool  absolute
+int16 pan
+int16 tilt
+---
+# There are no parameters for the result
+---
+# There are no parameters for feedback
