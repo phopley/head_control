@@ -5,6 +5,9 @@ Changelog for package head_control
 Unreleased
 ------------------
 * Head movement now controlled by an action server
+* Default head position (config.yaml file) now set to 90 for tilt
+* pan_tilt_node/head_position topic now latched to ensure default values detetced down the chain
+* maunal_view_step values added to config
 
 1.0.0 (2018-12-05)
 ------------------

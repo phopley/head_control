@@ -128,7 +128,7 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
 	as_.start();         
 		    	
     // Topic to move head
-    move_head_pub_ = nh_.advertise<servo_msgs::pan_tilt>("pan_tilt_node/head_position", 10);
+    move_head_pub_ = nh_.advertise<servo_msgs::pan_tilt>("pan_tilt_node/head_position", 10, true);
 	
     pan_step_ = 10;     // Maximum step movment for pan servo 
     tilt_step_ = 10;    // Maximum step movment for tilt servo 
@@ -138,13 +138,12 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
     nh_.param("/head/max_step/tilt", tilt_step_, tilt_step_);
         
     int pan = 90;      // Pan default position to return to
-    int tilt = 45;     // Tilt default position to return to
+    int tilt = 90;     // Tilt default position to return to
     nh_.param("/head/position/pan", pan, pan);    
     nh_.param("/head/position/tilt", tilt, tilt);
     default_position_.pan = (int)pan;
     default_position_.tilt = (int)tilt;
-	
-    // This start position may be so the user can access the on screen keyboard. 
+	 
     // We will often return to this position when a task is completed	
     current_pan_tilt_ = default_position_;
     // We don't know where the servo starts from so just jump to the required position    
