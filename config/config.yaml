@@ -1,13 +1,13 @@
 head:
   position:
-    pan: 90
-    tilt: 90
+    pan: 0.0
+    tilt: 0.0
   view_step:
-    pan: 50
-    tilt: 25
+    pan: 0.872665
+    tilt: 0.436332
   maunal_view_step:
-    pan: 20
-    tilt: 20
+    pan: 0.349066
+    tilt: 0.349066
   max_step:
-    pan: 5
-    tilt: 5
+    pan: 0.0872665
+    tilt: 0.0872665

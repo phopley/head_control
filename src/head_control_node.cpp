@@ -82,7 +82,7 @@ void HeadControlNode::moveServo()
                 }                
                 
                 // Publish the movement
-                move_head_pub_.publish(current_pan_tilt_);
+                publishJointState(current_pan_tilt_);
 
 				// Publish feedback
 				head_control::point_headFeedback feedback;
@@ -119,6 +119,16 @@ void HeadControlNode::pointHeadCallback()
 }
 //---------------------------------------------------------------------------
 
+// This function creates and publishes a joint state message
+void HeadControlNode::publishJointState(struct position pan_tilt)
+{
+    msg_.position[0] = pan_tilt.pan;
+    msg_.position[1] = pan_tilt.tilt;
+    msg_.header.stamp = ros::Time::now();
+
+    move_head_pub_.publish(msg_); 
+}
+
 // Constructor 
 HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, name, false), action_name_(name)
 {	
@@ -128,27 +138,36 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
 	as_.start();         
 		    	
     // Topic to move head
-    move_head_pub_ = nh_.advertise<servo_msgs::pan_tilt>("pan_tilt_node/head_position", 10, true);
+    move_head_pub_ = nh_.advertise<sensor_msgs::JointState>("pan_tilt_node/joints", 10, true); 
 	
-    pan_step_ = 10;     // Maximum step movment for pan servo 
-    tilt_step_ = 10;    // Maximum step movment for tilt servo 
-	
-    // Obtain any configuration values from the parameter server. If they don't exist use the defaults above
-    nh_.param("/head/max_step/pan", pan_step_, pan_step_);
-    nh_.param("/head/max_step/tilt", tilt_step_, tilt_step_);
+    // Obtain any configuration values from the parameter server. If they don't exist use the defaults
+
+    // Joint names
+    nh_.param<std::string>("/servo/index0/pan/joint_name", pan_joint_name_, "reserved_pan0");
+    nh_.param<std::string>("/servo/index0/tilt/joint_name", tilt_joint_name_, "reserved_tilt0");
+
+    // Maximum angle we can move in one go
+    nh_.param("/head/max_step/pan", pan_step_, 0.174533);
+    nh_.param("/head/max_step/tilt", tilt_step_, 0.174533);
         
-    int pan = 90;      // Pan default position to return to
-    int tilt = 90;     // Tilt default position to return to
-    nh_.param("/head/position/pan", pan, pan);    
-    nh_.param("/head/position/tilt", tilt, tilt);
-    default_position_.pan = (int)pan;
-    default_position_.tilt = (int)tilt;
+    double pan;      // Pan default position to return to
+    double tilt;     // Tilt default position to return to
+    nh_.param("/head/position/pan", pan, 0.0);    
+    nh_.param("/head/position/tilt", tilt, 0.0);
+    default_position_.pan = pan;
+    default_position_.tilt = tilt;
 	 
+    // Set up the the message we will publish
+    msg_.name.push_back(pan_joint_name_);
+    msg_.name.push_back(tilt_joint_name_);
+    msg_.position.push_back(0.0);
+    msg_.position.push_back(0.0);
+
     // We will often return to this position when a task is completed	
     current_pan_tilt_ = default_position_;
     // We don't know where the servo starts from so just jump to the required position    
     // Publish a start position to get the head in a known position.
-    move_head_pub_.publish(current_pan_tilt_);
+    publishJointState(current_pan_tilt_);
     
     move_head_ = false;
     movement_complete_ = false;
