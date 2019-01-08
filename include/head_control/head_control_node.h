@@ -21,7 +21,6 @@ class HeadControlNode
 {
 protected:
     Server as_;
-    std::string action_name_;
 
 public:
     HeadControlNode(ros::NodeHandle n, std::string name);

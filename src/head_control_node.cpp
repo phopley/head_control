@@ -130,7 +130,7 @@ void HeadControlNode::publishJointState(struct position pan_tilt)
 }
 
 // Constructor 
-HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, name, false), action_name_(name)
+HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, name, false)
 {	
     nh_ = n;
 
