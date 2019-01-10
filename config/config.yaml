@@ -2,12 +2,6 @@ head:
   position:
     pan: 0.0
     tilt: 0.0
-  view_step:
-    pan: 0.872665
-    tilt: 0.436332
-  maunal_view_step:
-    pan: 0.349066
-    tilt: 0.349066
   max_step:
     pan: 0.0872665
     tilt: 0.0872665
