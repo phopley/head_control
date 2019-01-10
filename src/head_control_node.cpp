@@ -86,6 +86,8 @@ void HeadControlNode::moveServo()
 
 				// Publish feedback
 				head_control::point_headFeedback feedback;
+                feedback.current_pan = current_pan_tilt_.pan;
+                feedback.current_tilt = current_pan_tilt_.tilt;
 				as_.publishFeedback(feedback);
             }
         }

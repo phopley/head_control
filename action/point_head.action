@@ -8,4 +8,6 @@ float64 tilt
 ---
 # There are no parameters for the result
 ---
-# There are no parameters for feedback
+# Feedback gives the current position
+float64 current_pan
+float64 current_tilt
