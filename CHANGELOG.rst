@@ -4,6 +4,7 @@ Changelog for package head_control
 
 Unreleased
 ------------------
+* Now conforms to ROS standard using radians rotating around an axis
 * Head movement now controlled by an action server
 * Default head position (config.yaml file) now set to 90 for tilt
 * pan_tilt_node/head_position topic now latched to ensure default values detetced down the chain
