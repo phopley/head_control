@@ -8,11 +8,10 @@ void HeadControlNode::moveServo()
 {
     if(move_head_ == true)
     {
-		if(as_.isPreemptRequested() || !ros::ok())
-		{
-			as_.setPreempted();
-
-			movement_complete_ = false;
+        if(as_.isPreemptRequested() || !ros::ok())
+        {
+            as_.setPreempted();
+            movement_complete_ = false;
             move_head_ = false;
         }
         else if(movement_complete_ == true)
@@ -24,9 +23,8 @@ void HeadControlNode::moveServo()
             {
                 movement_complete_ = false;
                 move_head_ = false;                                
-
-				head_control::point_headResult result;
-				as_.setSucceeded(result);
+                head_control::point_headResult result;
+                as_.setSucceeded(result);
             }
         }
         else
@@ -84,11 +82,11 @@ void HeadControlNode::moveServo()
                 // Publish the movement
                 publishJointState(current_pan_tilt_);
 
-				// Publish feedback
-				head_control::point_headFeedback feedback;
+                // Publish feedback
+                head_control::point_headFeedback feedback;
                 feedback.current_pan = current_pan_tilt_.pan;
                 feedback.current_tilt = current_pan_tilt_.tilt;
-				as_.publishFeedback(feedback);
+                as_.publishFeedback(feedback);
             }
         }
     }
@@ -98,20 +96,20 @@ void HeadControlNode::moveServo()
 // This callback is for the point head action
 void HeadControlNode::pointHeadCallback()
 {
-	head_control::point_headGoal::ConstPtr goal;
+    head_control::point_headGoal::ConstPtr goal;
 
-	goal = as_.acceptNewGoal();
+    goal = as_.acceptNewGoal();
 
     // Set the target position to the request position
     if (goal->absolute == true)
     {
         target_pan_tilt_.pan = goal->pan;
-	    target_pan_tilt_.tilt = goal->tilt;
+        target_pan_tilt_.tilt = goal->tilt;
     }
     else
     {
         target_pan_tilt_.pan += goal->pan;
-	    target_pan_tilt_.tilt += goal->tilt;
+        target_pan_tilt_.tilt += goal->tilt;
     }
 
     // Indicate that the servos should be moved
@@ -136,8 +134,8 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
 {	
     nh_ = n;
 
-	as_.registerGoalCallback(boost::bind(&HeadControlNode::pointHeadCallback, this));
-	as_.start();         
+    as_.registerGoalCallback(boost::bind(&HeadControlNode::pointHeadCallback, this));
+    as_.start();         
 		    	
     // Topic to move head
     move_head_pub_ = nh_.advertise<sensor_msgs::JointState>("pan_tilt_node/joints", 10, true); 
@@ -206,4 +204,3 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-
