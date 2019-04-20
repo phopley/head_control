@@ -1,3 +1,19 @@
+/* Copyright 2019 Philip Hopley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+ * use this file except in compliance with the License. You may obtain a  copy
+ * of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * ROS node to control the head/camera by controlling the speed of the servos to reach a target position. 
+ */
 #ifndef HEAD_CONTROL_NODE_H_
 #define HEAD_CONTROL_NODE_H_
 
@@ -23,17 +39,17 @@ protected:
     Server as_;
 
 public:
-    HeadControlNode(ros::NodeHandle n, std::string name);
+    HeadControlNode(ros::NodeHandle n, ros::NodeHandle n_private, std::string name);
     ~HeadControlNode();
     // Function to move the servos
     void moveServo();
 
 private:
     ros::NodeHandle nh_;
+    ros::NodeHandle nh_private_;
 		
     position current_pan_tilt_; // The current pan/tilt position
     position target_pan_tilt_;  // The position we want the pan/tilt to move to
-    position default_position_; // Neutral position for pan and tilt
 		
     ros::Publisher move_head_pub_;
 		

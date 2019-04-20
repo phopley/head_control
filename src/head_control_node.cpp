@@ -1,6 +1,21 @@
+/* Copyright 2019 Philip Hopley
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not 
+ * use this file except in compliance with the License. You may obtain a  copy
+ * of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ *
+ * ROS node to control the head/camera by controlling the speed of the servos to reach a target position. 
+ */
 #include <ros/ros.h>
 #include <head_control/head_control_node.h>
-
 
 // Function to move the servos if required by a step amount. This is to stop the head shuddering if the servo
 // is moved to the target position in one movement.
@@ -130,9 +145,10 @@ void HeadControlNode::publishJointState(struct position pan_tilt)
 }
 
 // Constructor 
-HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, name, false)
+HeadControlNode::HeadControlNode(ros::NodeHandle n, ros::NodeHandle n_private, std::string name) : as_(n, name, false)
 {	
     nh_ = n;
+    nh_private_ = n_private;
 
     as_.registerGoalCallback(boost::bind(&HeadControlNode::pointHeadCallback, this));
     as_.start();         
@@ -141,21 +157,14 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
     move_head_pub_ = nh_.advertise<sensor_msgs::JointState>("pan_tilt_node/joints", 10, true); 
 	
     // Obtain any configuration values from the parameter server. If they don't exist use the defaults
+    // Using the private node handle in this way means the <node_name> will prefix the parameter
+    // Maximum angle we can move in one go
+    nh_private_.param("head/max_step/pan", pan_step_, 0.174533);
+    nh_private_.param("head/max_step/tilt", tilt_step_, 0.174533);
 
-    // Joint names
+    // Joint names are set in another package configuration file
     nh_.param<std::string>("/servo/index0/pan/joint_name", pan_joint_name_, "reserved_pan0");
     nh_.param<std::string>("/servo/index0/tilt/joint_name", tilt_joint_name_, "reserved_tilt0");
-
-    // Maximum angle we can move in one go
-    nh_.param("/head/max_step/pan", pan_step_, 0.174533);
-    nh_.param("/head/max_step/tilt", tilt_step_, 0.174533);
-        
-    double pan;      // Pan default position to return to
-    double tilt;     // Tilt default position to return to
-    nh_.param("/head/position/pan", pan, 0.0);    
-    nh_.param("/head/position/tilt", tilt, 0.0);
-    default_position_.pan = pan;
-    default_position_.tilt = tilt;
 	 
     // Set up the the message we will publish
     msg_.name.push_back(pan_joint_name_);
@@ -163,8 +172,9 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, std::string name) : as_(n, n
     msg_.position.push_back(0.0);
     msg_.position.push_back(0.0);
 
-    // We will often return to this position when a task is completed	
-    current_pan_tilt_ = default_position_;
+    current_pan_tilt_.pan = 0.0;
+    current_pan_tilt_.tilt = 0.0;
+    
     // We don't know where the servo starts from so just jump to the required position    
     // Publish a start position to get the head in a known position.
     publishJointState(current_pan_tilt_);
@@ -185,8 +195,9 @@ int main(int argc, char **argv)
 {
     ros::init(argc, argv, "head_control_node");
     ros::NodeHandle n;
+    ros::NodeHandle n_private("~");
     std::string node_name = ros::this_node::getName();
-    HeadControlNode head_control(n, node_name);	
+    HeadControlNode head_control(n, n_private, node_name);	
     ROS_INFO("%s started", node_name.c_str());
     
     // We need control of the node so that we can step the servos to the target 

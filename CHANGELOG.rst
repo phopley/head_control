@@ -2,6 +2,12 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Unreleased
+------------------
+* Removed default position code which is not used
+* some parameters on the parameter server now private
+* Added license details
+
 2.0.0 (2019-01-10)
 ------------------
 * Now conforms to ROS standard using radians rotating around an axis

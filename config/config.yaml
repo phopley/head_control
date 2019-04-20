@@ -1,7 +1,4 @@
 head:
-  position:
-    pan: 0.0
-    tilt: 0.0
   max_step:
     pan: 0.0872665
     tilt: 0.0872665
