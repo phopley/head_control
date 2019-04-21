@@ -165,6 +165,15 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, ros::NodeHandle n_private, s
     // Joint names are set in another package configuration file
     nh_.param<std::string>("/servo/index0/pan/joint_name", pan_joint_name_, "reserved_pan0");
     nh_.param<std::string>("/servo/index0/tilt/joint_name", tilt_joint_name_, "reserved_tilt0");
+        
+    double pan;      // Pan default position to return to
+    double tilt;     // Tilt default position to return to
+    
+    // These parameters are common to other packages
+    nh_.param("/head/position/pan", pan, 0.0);    
+    nh_.param("/head/position/tilt", tilt, 0.0);
+    default_position_.pan = pan;
+    default_position_.tilt = tilt;
 	 
     // Set up the the message we will publish
     msg_.name.push_back(pan_joint_name_);
@@ -172,9 +181,8 @@ HeadControlNode::HeadControlNode(ros::NodeHandle n, ros::NodeHandle n_private, s
     msg_.position.push_back(0.0);
     msg_.position.push_back(0.0);
 
-    current_pan_tilt_.pan = 0.0;
-    current_pan_tilt_.tilt = 0.0;
-    
+    current_pan_tilt_ = default_position_;
+
     // We don't know where the servo starts from so just jump to the required position    
     // Publish a start position to get the head in a known position.
     publishJointState(current_pan_tilt_);

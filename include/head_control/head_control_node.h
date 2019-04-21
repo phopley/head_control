@@ -50,6 +50,7 @@ private:
 		
     position current_pan_tilt_; // The current pan/tilt position
     position target_pan_tilt_;  // The position we want the pan/tilt to move to
+    position default_position_; // Neutral position for pan and tilt
 		
     ros::Publisher move_head_pub_;
 		

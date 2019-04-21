@@ -4,8 +4,7 @@ Changelog for package head_control
 
 Unreleased
 ------------------
-* Removed default position code which is not used
-* some parameters on the parameter server now private
+* some parameters on the parameter server are now private
 * Added license details
 
 2.0.0 (2019-01-10)
