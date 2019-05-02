@@ -2,6 +2,11 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+2.1.0 (2019-05-02)
+------------------
+* some parameters on the parameter server are now private
+* Added license details
+
 2.0.0 (2019-01-10)
 ------------------
 * Now conforms to ROS standard using radians rotating around an axis
