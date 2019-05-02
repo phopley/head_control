@@ -2,7 +2,7 @@
 Changelog for package head_control
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Unreleased
+2.1.0 (2019-05-02)
 ------------------
 * some parameters on the parameter server are now private
 * Added license details
